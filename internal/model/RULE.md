@@ -170,6 +170,7 @@ const (
 | 在模型中编写业务逻辑 | 业务逻辑应在 service 层 |
 | Password 字段设为 `json:"password"` | 敏感信息泄露 |
 | 修改 BaseModel 定义 | 会影响所有模型 |
+| 使用装饰性分隔线注释 | 使用简洁单行注释 |
 
 ---
 

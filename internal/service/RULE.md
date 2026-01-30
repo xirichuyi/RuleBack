@@ -8,6 +8,7 @@
 
 ```
 internal/service/
+├── interfaces.go       # Service接口定义
 ├── user_service.go     # 用户Service
 ├── xxx_service.go      # 其他业务Service
 └── RULE.md            # 本规则文件
@@ -23,7 +24,35 @@ internal/service/
 
 文件命名: `{实体名小写}_service.go`，如 `order_service.go`
 
-### 步骤2: 定义结构体和单例
+### 步骤2: 定义结构体和构造函数
+
+**推荐方式（Wire依赖注入）：**
+
+```go
+package service
+
+import (
+    "errors"
+
+    "gorm.io/gorm"
+    apperrors "ruleback/pkg/errors"
+    "ruleback/pkg/logger"
+    "ruleback/internal/model"
+    "ruleback/internal/repository"
+)
+
+// OrderService 订单业务逻辑层
+type OrderService struct {
+    repo *repository.OrderRepository
+}
+
+// NewOrderService 创建OrderService实例（用于Wire依赖注入）
+func NewOrderService(repo *repository.OrderRepository) *OrderService {
+    return &OrderService{repo: repo}
+}
+```
+
+**兼容方式（单例模式，保留向后兼容）：**
 
 ```go
 package service
@@ -49,7 +78,12 @@ type OrderService struct {
     repo *repository.OrderRepository
 }
 
-// GetOrderService 获取OrderService单例
+// NewOrderService 创建OrderService实例（用于Wire依赖注入）
+func NewOrderService(repo *repository.OrderRepository) *OrderService {
+    return &OrderService{repo: repo}
+}
+
+// GetOrderService 获取OrderService单例（兼容旧代码）
 func GetOrderService() *OrderService {
     orderServiceOnce.Do(func() {
         orderServiceInstance = &OrderService{
@@ -201,12 +235,13 @@ return nil, apperrors.New(apperrors.CodeConflict, "订单号已存在")
 
 | 禁止 | 正确做法 |
 |------|---------|
-| 使用 `New*` 创建实例 | 使用 `Get*` 单例方法 |
 | 直接操作数据库 | 通过Repository操作 |
 | 接收gin.Context参数 | 接收业务参数 |
 | 直接返回Repository错误 | 转换为业务错误 |
 | 使用fmt.Println | 使用logger包 |
 | 使用装饰性分隔线注释 | 使用简洁单行注释 |
+
+**注意**: 推荐使用 `New*` 构造函数配合Wire依赖注入，`Get*` 单例方法保留用于向后兼容
 
 ---
 
@@ -249,7 +284,12 @@ type XxxService struct {
     repo *repository.XxxRepository
 }
 
-// GetXxxService 获取XxxService单例
+// NewXxxService 创建XxxService实例（用于Wire依赖注入）
+func NewXxxService(repo *repository.XxxRepository) *XxxService {
+    return &XxxService{repo: repo}
+}
+
+// GetXxxService 获取XxxService单例（兼容旧代码）
 func GetXxxService() *XxxService {
     xxxServiceOnce.Do(func() {
         xxxServiceInstance = &XxxService{

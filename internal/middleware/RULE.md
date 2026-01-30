@@ -123,6 +123,7 @@ func Auth() gin.HandlerFunc {
 | 在中间件中编写业务逻辑 | 只做认证、授权、日志等横切关注点 |
 | 直接使用c.JSON返回响应 | 使用response包的函数 |
 | 拦截请求后忘记调用c.Abort() | response.Xxx() + c.Abort() + return |
+| 使用装饰性分隔线注释 | 使用简洁单行注释 |
 
 ---
 

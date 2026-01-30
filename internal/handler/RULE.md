@@ -23,7 +23,36 @@ internal/handler/
 
 文件命名: `{实体名小写}_handler.go`，如 `order_handler.go`
 
-### 步骤2: 定义结构体和单例
+### 步骤2: 定义结构体和构造函数
+
+**推荐方式（Wire依赖注入）：**
+
+```go
+package handler
+
+import (
+    "strconv"
+
+    "github.com/gin-gonic/gin"
+    "ruleback/internal/model"
+    "ruleback/internal/service"
+    "ruleback/pkg/errors"
+    "ruleback/pkg/logger"
+    "ruleback/pkg/response"
+)
+
+// OrderHandler 订单HTTP处理器
+type OrderHandler struct {
+    service *service.OrderService
+}
+
+// NewOrderHandler 创建OrderHandler实例（用于Wire依赖注入）
+func NewOrderHandler(svc *service.OrderService) *OrderHandler {
+    return &OrderHandler{service: svc}
+}
+```
+
+**兼容方式（单例模式，保留向后兼容）：**
 
 ```go
 package handler
@@ -50,7 +79,12 @@ type OrderHandler struct {
     service *service.OrderService
 }
 
-// GetOrderHandler 获取OrderHandler单例
+// NewOrderHandler 创建OrderHandler实例（用于Wire依赖注入）
+func NewOrderHandler(svc *service.OrderService) *OrderHandler {
+    return &OrderHandler{service: svc}
+}
+
+// GetOrderHandler 获取OrderHandler单例（兼容旧代码）
 func GetOrderHandler() *OrderHandler {
     orderHandlerOnce.Do(func() {
         orderHandlerInstance = &OrderHandler{
@@ -220,11 +254,12 @@ func (h *OrderHandler) handleError(c *gin.Context, err error) {
 
 | 禁止 | 正确做法 |
 |------|---------|
-| 使用 `New*` 创建实例 | 使用 `Get*` 单例方法 |
 | 在Handler中编写业务逻辑 | 业务逻辑放在Service层 |
 | 直接调用Repository | 通过Service调用 |
 | 使用c.JSON返回自定义格式 | 使用response包 |
 | 使用装饰性分隔线注释 | 使用简洁单行注释 |
+
+**注意**: 推荐使用 `New*` 构造函数配合Wire依赖注入，`Get*` 单例方法保留用于向后兼容
 
 ---
 
@@ -267,7 +302,12 @@ type XxxHandler struct {
     service *service.XxxService
 }
 
-// GetXxxHandler 获取XxxHandler单例
+// NewXxxHandler 创建XxxHandler实例（用于Wire依赖注入）
+func NewXxxHandler(svc *service.XxxService) *XxxHandler {
+    return &XxxHandler{service: svc}
+}
+
+// GetXxxHandler 获取XxxHandler单例（兼容旧代码）
 func GetXxxHandler() *XxxHandler {
     xxxHandlerOnce.Do(func() {
         xxxHandlerInstance = &XxxHandler{
@@ -390,11 +430,55 @@ func (h *XxxHandler) handleError(c *gin.Context, err error) {
 
 ## 七、创建Handler后的后续步骤
 
-在路由中注册（使用Get*单例方法）：
+**推荐方式（Wire依赖注入）：**
+
+1. 在 `internal/wire/providers.go` 中添加Provider:
+
+```go
+func ProvideOrderRepository(base *repository.BaseRepository) *repository.OrderRepository {
+    return repository.NewOrderRepository(base)
+}
+
+func ProvideOrderService(repo *repository.OrderRepository) *service.OrderService {
+    return service.NewOrderService(repo)
+}
+
+func ProvideOrderHandler(svc *service.OrderService) *handler.OrderHandler {
+    return handler.NewOrderHandler(svc)
+}
+```
+
+2. 在 `internal/wire/providers.go` 的 Handlers 结构体中添加字段:
+
+```go
+type Handlers struct {
+    UserHandler  *handler.UserHandler
+    OrderHandler *handler.OrderHandler  // 新增
+}
+```
+
+3. 在路由中注册（使用Wire注入的Handler）:
+
+```go
+func registerOrderRoutes(rg *gin.RouterGroup, orderHandler *handler.OrderHandler) {
+    orders := rg.Group("/orders")
+    {
+        orders.GET("", orderHandler.List)
+        orders.POST("", orderHandler.Create)
+        orders.GET("/:id", orderHandler.GetByID)
+        orders.PUT("/:id", orderHandler.Update)
+        orders.DELETE("/:id", orderHandler.Delete)
+    }
+}
+```
+
+4. 重新生成Wire代码: `~/go/bin/wire ./internal/wire/...`
+
+**兼容方式（单例模式）：**
 
 ```go
 func registerOrderRoutes(rg *gin.RouterGroup) {
-    h := handler.GetOrderHandler()  // 使用Get而不是New
+    h := handler.GetOrderHandler()  // 使用Get单例方法
 
     orders := rg.Group("/orders")
     {

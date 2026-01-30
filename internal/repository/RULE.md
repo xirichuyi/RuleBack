@@ -9,6 +9,7 @@
 ```
 internal/repository/
 ├── base.go              # 基础Repository（勿修改）
+├── interfaces.go        # Repository接口定义
 ├── user_repository.go   # 用户Repository
 ├── xxx_repository.go    # 其他业务Repository
 └── RULE.md             # 本规则文件
@@ -24,7 +25,30 @@ internal/repository/
 
 文件命名: `{实体名小写}_repository.go`，如 `order_repository.go`
 
-### 步骤2: 定义结构体和单例
+### 步骤2: 定义结构体和构造函数
+
+**推荐方式（Wire依赖注入）：**
+
+```go
+package repository
+
+import (
+    "gorm.io/gorm"
+    "ruleback/internal/model"
+)
+
+// OrderRepository 订单数据访问层
+type OrderRepository struct {
+    *BaseRepository
+}
+
+// NewOrderRepository 创建OrderRepository实例（用于Wire依赖注入）
+func NewOrderRepository(base *BaseRepository) *OrderRepository {
+    return &OrderRepository{BaseRepository: base}
+}
+```
+
+**兼容方式（单例模式，保留向后兼容）：**
 
 ```go
 package repository
@@ -46,7 +70,12 @@ type OrderRepository struct {
     *BaseRepository
 }
 
-// GetOrderRepository 获取OrderRepository单例
+// NewOrderRepository 创建OrderRepository实例（用于Wire依赖注入）
+func NewOrderRepository(base *BaseRepository) *OrderRepository {
+    return &OrderRepository{BaseRepository: base}
+}
+
+// GetOrderRepository 获取OrderRepository单例（兼容旧代码）
 func GetOrderRepository() *OrderRepository {
     orderRepoOnce.Do(func() {
         orderRepoInstance = &OrderRepository{
@@ -169,11 +198,12 @@ func (r *OrderRepository) UpdateStatus(id uint, status model.OrderStatus) error 
 
 | 禁止 | 正确做法 |
 |------|---------|
-| 使用 `New*` 创建实例 | 使用 `Get*` 单例方法 |
 | 在Repository中包含业务逻辑 | 业务逻辑放在Service层 |
 | 使用硬编码SQL | 使用GORM方法 |
 | 调用其他Repository | 在Service层协调 |
 | 使用装饰性分隔线注释 | 使用简洁单行注释 |
+
+**注意**: 推荐使用 `New*` 构造函数配合Wire依赖注入，`Get*` 单例方法保留用于向后兼容
 
 ---
 
@@ -210,7 +240,12 @@ type XxxRepository struct {
     *BaseRepository
 }
 
-// GetXxxRepository 获取XxxRepository单例
+// NewXxxRepository 创建XxxRepository实例（用于Wire依赖注入）
+func NewXxxRepository(base *BaseRepository) *XxxRepository {
+    return &XxxRepository{BaseRepository: base}
+}
+
+// GetXxxRepository 获取XxxRepository单例（兼容旧代码）
 func GetXxxRepository() *XxxRepository {
     xxxRepoOnce.Do(func() {
         xxxRepoInstance = &XxxRepository{

@@ -137,6 +137,7 @@ func registerOrderRoutes(rg *gin.RouterGroup, orderHandler *handler.OrderHandler
 | 在Provider中包含业务逻辑 | Provider只负责创建实例 |
 | 循环依赖 | 重新设计依赖关系 |
 | 忘记更新ProviderSet | 添加新Provider后必须更新 |
+| 使用装饰性分隔线注释 | 使用简洁单行注释 |
 
 ---
 

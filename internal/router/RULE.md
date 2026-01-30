@@ -18,11 +18,40 @@ internal/router/
 
 ## 二、添加新模块路由的完整流程
 
-### 步骤1: 创建路由注册函数
+### 推荐方式（Wire依赖注入）
+
+#### 步骤1: 创建路由注册函数（接收Handler参数）
 
 ```go
-// registerOrderRoutes 注册订单相关路由
-func registerOrderRoutes(rg *gin.RouterGroup) {
+// registerOrderRoutes 注册订单相关路由（使用依赖注入）
+func registerOrderRoutes(rg *gin.RouterGroup, orderHandler *handler.OrderHandler) {
+    orders := rg.Group("/orders")
+    {
+        orders.GET("", orderHandler.List)
+        orders.POST("", orderHandler.Create)
+        orders.GET("/:id", orderHandler.GetByID)
+        orders.PUT("/:id", orderHandler.Update)
+        orders.DELETE("/:id", orderHandler.Delete)
+    }
+}
+```
+
+#### 步骤2: 在认证路由组中注册
+
+```go
+func registerAuthenticatedRoutes(rg *gin.RouterGroup, handlers *wire.Handlers) {
+    registerUserRoutes(rg, handlers.UserHandler)
+    registerOrderRoutes(rg, handlers.OrderHandler)  // 添加新模块
+}
+```
+
+### 兼容方式（单例模式）
+
+#### 步骤1: 创建路由注册函数
+
+```go
+// registerOrderRoutesLegacy 注册订单相关路由（使用单例）
+func registerOrderRoutesLegacy(rg *gin.RouterGroup) {
     h := handler.GetOrderHandler()  // 使用Get单例方法
 
     orders := rg.Group("/orders")
@@ -36,13 +65,12 @@ func registerOrderRoutes(rg *gin.RouterGroup) {
 }
 ```
 
-### 步骤2: 在认证路由组中注册
+#### 步骤2: 在认证路由组中注册
 
 ```go
-func registerAuthenticatedRoutes(rg *gin.RouterGroup) {
-    // 临时：不需要认证的路由（仅用于开发测试）
-    registerUserRoutes(rg)
-    registerOrderRoutes(rg)  // 添加新模块
+func registerAuthenticatedRoutesLegacy(rg *gin.RouterGroup) {
+    registerUserRoutesLegacy(rg)
+    registerOrderRoutesLegacy(rg)  // 添加新模块
 }
 ```
 
@@ -111,10 +139,11 @@ orders.POST("/:id/pay", orderHandler.Pay)
 
 | 禁止 | 正确做法 |
 |------|----------|
-| 使用 `New*` 创建Handler | 使用 `Get*` 单例方法 |
 | 在router中编写业务逻辑 | 只做路由映射 |
 | 使用匿名函数作为Handler | 使用Handler方法 |
 | 使用装饰性分隔线注释 | 使用简洁单行注释 |
+
+**注意**: 推荐使用Wire依赖注入方式（从参数接收Handler），`Get*` 单例方法保留用于向后兼容
 
 ---
 
@@ -139,6 +168,8 @@ orders.POST("/:id/pay", orderHandler.Pay)
 
 ## 八、完整router.go模板
 
+**推荐方式（Wire依赖注入）：**
+
 ```go
 package router
 
@@ -146,15 +177,16 @@ import (
     "github.com/gin-gonic/gin"
     "ruleback/internal/handler"
     "ruleback/internal/middleware"
+    "ruleback/internal/wire"
 )
 
-// Setup 初始化并配置路由
-func Setup() *gin.Engine {
+// Setup 初始化并配置路由（使用依赖注入）
+func Setup(handlers *wire.Handlers) *gin.Engine {
     r := gin.New()
 
     registerGlobalMiddleware(r)
     registerHealthRoutes(r)
-    registerAPIRoutes(r)
+    registerAPIRoutes(r, handlers)
 
     return r
 }
@@ -177,12 +209,12 @@ func registerHealthRoutes(r *gin.Engine) {
     })
 }
 
-// registerAPIRoutes 注册API路由
-func registerAPIRoutes(r *gin.Engine) {
+// registerAPIRoutes 注册API路由（使用依赖注入）
+func registerAPIRoutes(r *gin.Engine, handlers *wire.Handlers) {
     v1 := r.Group("/api/v1")
     {
         registerPublicRoutes(v1)
-        registerAuthenticatedRoutes(v1)
+        registerAuthenticatedRoutes(v1, handlers)
     }
 }
 
@@ -190,20 +222,67 @@ func registerAPIRoutes(r *gin.Engine) {
 func registerPublicRoutes(rg *gin.RouterGroup) {
     // auth := rg.Group("/auth")
     // {
-    //     h := handler.GetAuthHandler()
-    //     auth.POST("/login", h.Login)
-    //     auth.POST("/register", h.Register)
+    //     auth.POST("/login", authHandler.Login)
+    //     auth.POST("/register", authHandler.Register)
     // }
 }
 
-// registerAuthenticatedRoutes 注册需要认证的路由
-func registerAuthenticatedRoutes(rg *gin.RouterGroup) {
-    // 临时：不需要认证的路由（仅用于开发测试）
-    registerUserRoutes(rg)
+// registerAuthenticatedRoutes 注册需要认证的路由（使用依赖注入）
+func registerAuthenticatedRoutes(rg *gin.RouterGroup, handlers *wire.Handlers) {
+    registerUserRoutes(rg, handlers.UserHandler)
 }
 
-// registerUserRoutes 注册用户相关路由
-func registerUserRoutes(rg *gin.RouterGroup) {
+// registerUserRoutes 注册用户相关路由（使用依赖注入）
+func registerUserRoutes(rg *gin.RouterGroup, userHandler *handler.UserHandler) {
+    users := rg.Group("/users")
+    {
+        users.GET("", userHandler.List)
+        users.POST("", userHandler.Create)
+        users.GET("/:id", userHandler.GetByID)
+        users.PUT("/:id", userHandler.Update)
+        users.DELETE("/:id", userHandler.Delete)
+    }
+}
+```
+
+**兼容方式（单例模式）：**
+
+```go
+package router
+
+import (
+    "github.com/gin-gonic/gin"
+    "ruleback/internal/handler"
+    "ruleback/internal/middleware"
+)
+
+// SetupLegacy 初始化并配置路由（保留向后兼容）
+func SetupLegacy() *gin.Engine {
+    r := gin.New()
+
+    registerGlobalMiddleware(r)
+    registerHealthRoutes(r)
+    registerAPIRoutesLegacy(r)
+
+    return r
+}
+
+// registerAPIRoutesLegacy 注册API路由（使用单例）
+func registerAPIRoutesLegacy(r *gin.Engine) {
+    v1 := r.Group("/api/v1")
+    {
+        registerPublicRoutes(v1)
+        registerAuthenticatedRoutesLegacy(v1)
+    }
+}
+
+// registerAuthenticatedRoutesLegacy 注册需要认证的路由（使用单例）
+func registerAuthenticatedRoutesLegacy(rg *gin.RouterGroup) {
+    registerUserRoutesLegacy(rg)
+}
+
+// registerUserRoutesLegacy 注册用户相关路由（使用单例）
+func registerUserRoutesLegacy(rg *gin.RouterGroup) {
     h := handler.GetUserHandler()  // 使用Get单例方法
 
     users := rg.Group("/users")
