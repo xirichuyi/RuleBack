@@ -8,8 +8,7 @@
 
 ```
 internal/handler/
-├── user_handler.go     # 用户Handler
-├── xxx_handler.go      # 其他业务Handler
+├── xxx_handler.go      # 业务Handler（按需创建）
 └── RULE.md            # 本规则文件
 ```
 

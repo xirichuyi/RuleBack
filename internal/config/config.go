@@ -16,7 +16,7 @@ type Config struct {
 	Server   ServerConfig   `mapstructure:"server"`
 	Database DatabaseConfig `mapstructure:"database"`
 	Log      LogConfig      `mapstructure:"log"`
-	JWT      JWTConfig      `mapstructure:"jwt"`
+	JWT      *JWTConfig     `mapstructure:"jwt"` // 可选配置
 }
 
 // AppConfig 应用基础配置

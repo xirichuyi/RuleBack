@@ -5,7 +5,7 @@
 
 # 应用基础配置
 app:
-  name: "ruleback"
+  name: "myapp"  # 修改为你的项目名称
   env: "development"  # development, staging, production
   debug: true
 
@@ -21,7 +21,7 @@ database:
   driver: "mysql"  # mysql, postgres
   host: "localhost"
   port: 3306
-  database: "ruleback"
+  database: "myapp"  # 修改为你的数据库名
   username: "root"
   password: ""  # 生产环境使用 APP_DATABASE_PASSWORD
   max_open_conns: 100
@@ -35,8 +35,8 @@ log:
   output: "stdout"  # stdout, file
   file_path: "logs/app.log"
 
-# JWT 配置
-jwt:
-  secret: "your-secret-key-change-in-production"  # 生产环境使用 APP_JWT_SECRET
-  expire_time: 24
-  issuer: "ruleback"
+# 可选: JWT 配置（根据项目需求添加）
+# jwt:
+#   secret: "your-secret-key-change-in-production"  # 生产环境使用 APP_JWT_SECRET
+#   expire_time: 24  # 小时
+#   issuer: "myapp"

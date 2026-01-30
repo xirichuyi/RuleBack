@@ -91,13 +91,22 @@ pong
 
 ---
 
-## 用户模块
+## 业务接口
 
-### 获取用户列表
+> 框架初始状态不包含业务接口，请根据业务需求添加。
+>
+> 添加新模块时，请参考下方模板和 `docs/RULE.md` 中的文档格式规范。
+
+### 接口文档模板
+
+以下是标准CRUD接口的文档模板，添加新模块时可参考：
 
 ```
-GET /api/v1/users
-```
+## 模块名称
+
+### 获取列表
+
+GET /api/v1/xxxs
 
 **查询参数:**
 
@@ -105,141 +114,22 @@ GET /api/v1/users
 |------|------|------|------|
 | page | int | 否 | 页码，默认1 |
 | page_size | int | 否 | 每页数量，默认10 |
-| status | int | 否 | 状态筛选 |
 
-**响应:**
-```json
-{
-    "code": 0,
-    "message": "success",
-    "data": {
-        "list": [
-            {
-                "id": 1,
-                "username": "admin",
-                "email": "admin@example.com",
-                "status": 1,
-                "created_at": "2024-01-01T00:00:00Z"
-            }
-        ],
-        "total": 100,
-        "page": 1,
-        "page_size": 10,
-        "total_pages": 10
-    }
-}
-```
+### 创建记录
 
-### 创建用户
+POST /api/v1/xxxs
 
-```
-POST /api/v1/users
-```
+### 获取详情
 
-**请求体:**
-```json
-{
-    "username": "newuser",
-    "email": "newuser@example.com",
-    "password": "password123"
-}
-```
+GET /api/v1/xxxs/:id
 
-**响应:**
-```json
-{
-    "code": 0,
-    "message": "success",
-    "data": {
-        "id": 2,
-        "username": "newuser",
-        "email": "newuser@example.com",
-        "status": 1,
-        "created_at": "2024-01-01T00:00:00Z"
-    }
-}
-```
+### 更新记录
 
-### 获取用户详情
+PUT /api/v1/xxxs/:id
 
-```
-GET /api/v1/users/:id
-```
+### 删除记录
 
-**路径参数:**
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| id | int | 用户ID |
-
-**响应:**
-```json
-{
-    "code": 0,
-    "message": "success",
-    "data": {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "status": 1,
-        "created_at": "2024-01-01T00:00:00Z"
-    }
-}
-```
-
-### 更新用户
-
-```
-PUT /api/v1/users/:id
-```
-
-**路径参数:**
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| id | int | 用户ID |
-
-**请求体:**
-```json
-{
-    "email": "updated@example.com",
-    "status": 1
-}
-```
-
-**响应:**
-```json
-{
-    "code": 0,
-    "message": "success",
-    "data": {
-        "id": 1,
-        "username": "admin",
-        "email": "updated@example.com",
-        "status": 1,
-        "updated_at": "2024-01-02T00:00:00Z"
-    }
-}
-```
-
-### 删除用户
-
-```
-DELETE /api/v1/users/:id
-```
-
-**路径参数:**
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| id | int | 用户ID |
-
-**响应:**
-```json
-{
-    "code": 0,
-    "message": "删除成功"
-}
+DELETE /api/v1/xxxs/:id
 ```
 
 ---
@@ -248,6 +138,6 @@ DELETE /api/v1/users/:id
 
 | 日期 | 版本 | 变更内容 |
 |------|------|---------|
-| 2024-01-01 | v1.0 | 初始版本，包含用户模块 |
+| 2024-01-01 | v1.0 | 框架初始版本 |
 
 <!-- 新增接口时在此处添加 -->

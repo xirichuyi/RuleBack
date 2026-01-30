@@ -71,13 +71,11 @@ func ProvideOrderHandler(svc *service.OrderService) *handler.OrderHandler {
 
 ```go
 type Handlers struct {
-    UserHandler  *handler.UserHandler
-    OrderHandler *handler.OrderHandler  // 新增
+    OrderHandler *handler.OrderHandler  // 新增Handler字段
 }
 
-func ProvideHandlers(userHandler *handler.UserHandler, orderHandler *handler.OrderHandler) *Handlers {
+func ProvideHandlers(orderHandler *handler.OrderHandler) *Handlers {
     return &Handlers{
-        UserHandler:  userHandler,
         OrderHandler: orderHandler,
     }
 }
@@ -88,9 +86,6 @@ func ProvideHandlers(userHandler *handler.UserHandler, orderHandler *handler.Ord
 ```go
 var ProviderSet = wire.NewSet(
     ProvideBaseRepository,
-    ProvideUserRepository,
-    ProvideUserService,
-    ProvideUserHandler,
     ProvideOrderRepository,  // 新增
     ProvideOrderService,     // 新增
     ProvideOrderHandler,     // 新增
@@ -123,9 +118,9 @@ func registerOrderRoutes(rg *gin.RouterGroup, orderHandler *handler.OrderHandler
 
 | 类型 | 命名规范 | 示例 |
 |------|---------|------|
-| Repository | Provide + 模型 + Repository | `ProvideUserRepository` |
-| Service | Provide + 模型 + Service | `ProvideUserService` |
-| Handler | Provide + 模型 + Handler | `ProvideUserHandler` |
+| Repository | Provide + 模型 + Repository | `ProvideOrderRepository` |
+| Service | Provide + 模型 + Service | `ProvideOrderService` |
+| Handler | Provide + 模型 + Handler | `ProvideOrderHandler` |
 
 ---
 
@@ -163,11 +158,9 @@ database.GetDB()
        ▼
 BaseRepository
        │
-       ▼
-UserRepository ─────► UserService ─────► UserHandler
-       │                    │                  │
-       ▼                    ▼                  ▼
-OrderRepository ───► OrderService ───► OrderHandler
+       ├──────────────────────────────────────┐
+       ▼                                      ▼
+XxxRepository ─────► XxxService ─────► XxxHandler
                                               │
                                               ▼
                                           Handlers

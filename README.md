@@ -102,29 +102,31 @@ ruleback/
 │       ├── bootstrap.go      # 初始化和服务器管理
 │       └── RULE.md          # 入口模块规则
 ├── configs/
-│   └── config.yaml          # 配置文件
+│   ├── config.yaml          # 配置文件
+│   └── config.yaml.example  # 配置文件示例
 ├── docs/
 │   ├── api.md               # API文档
+│   ├── AI_USAGE.md         # AI使用指南
 │   └── RULE.md             # 文档规则
+├── examples/                # 示例代码
+│   ├── user_model.go.example
+│   ├── user_repository.go.example
+│   ├── user_service.go.example
+│   ├── user_handler.go.example
+│   └── README.md
 ├── internal/
 │   ├── config/              # 配置管理
 │   │   ├── config.go
 │   │   └── RULE.md
 │   ├── model/               # 数据模型
-│   │   ├── base.go
-│   │   ├── user.go
+│   │   ├── base.go         # 基础模型（勿修改）
 │   │   └── RULE.md
 │   ├── repository/          # 数据访问层
-│   │   ├── base.go
-│   │   ├── user_repository.go
-│   │   ├── interfaces.go
+│   │   ├── base.go         # 基础Repository（勿修改）
 │   │   └── RULE.md
 │   ├── service/             # 业务逻辑层
-│   │   ├── user_service.go
-│   │   ├── interfaces.go
 │   │   └── RULE.md
 │   ├── handler/             # HTTP处理层
-│   │   ├── user_handler.go
 │   │   └── RULE.md
 │   ├── middleware/          # 中间件
 │   │   ├── middleware.go
@@ -149,6 +151,8 @@ ruleback/
 │   └── response/            # 统一响应
 │       ├── response.go
 │       └── RULE.md
+├── scripts/
+│   └── init-project.sh     # 项目初始化脚本
 ├── CLAUDE.md                # AI代码生成主规则
 ├── go.mod
 └── README.md
@@ -181,7 +185,7 @@ ruleback/
 database.GetDB()
        │
        ▼
-BaseRepository → UserRepository → UserService → UserHandler → Handlers → Router
+BaseRepository → XxxRepository → XxxService → XxxHandler → Handlers → Router
 ```
 
 添加新模块后需重新生成 Wire 代码：

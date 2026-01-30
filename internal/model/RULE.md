@@ -9,8 +9,7 @@
 ```
 internal/model/
 ├── base.go     # 基础模型（BaseModel）和通用类型（勿修改）
-├── user.go     # 用户模型（示例）
-├── xxx.go      # 其他业务模型
+├── xxx.go      # 业务模型（按需创建）
 └── RULE.md     # 本规则文件
 ```
 

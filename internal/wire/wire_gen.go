@@ -14,22 +14,26 @@ import (
 // Injectors from wire.go:
 
 // InitializeHandlers 初始化所有Handler
+// 使用框架时，Wire会根据ProviderSet自动生成依赖注入代码
 func InitializeHandlers(db *gorm.DB) (*Handlers, error) {
-	baseRepository := ProvideBaseRepository(db)
-	userRepository := ProvideUserRepository(baseRepository)
-	userService := ProvideUserService(userRepository)
-	userHandler := ProvideUserHandler(userService)
-	handlers := ProvideHandlers(userHandler)
+	handlers := ProvideHandlers()
 	return handlers, nil
 }
 
 // wire.go:
 
 // ProviderSet 所有Provider的集合
+// 使用框架时，请在此处添加你的Provider
+// 示例:
+//
+//	var ProviderSet = wire.NewSet(
+//	    ProvideBaseRepository,
+//	    ProvideUserRepository,
+//	    ProvideUserService,
+//	    ProvideUserHandler,
+//	    ProvideHandlers,
+//	)
 var ProviderSet = wire.NewSet(
 	ProvideBaseRepository,
-	ProvideUserRepository,
-	ProvideUserService,
-	ProvideUserHandler,
 	ProvideHandlers,
 )

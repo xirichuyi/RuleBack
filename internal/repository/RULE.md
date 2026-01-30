@@ -9,9 +9,8 @@
 ```
 internal/repository/
 ├── base.go              # 基础Repository（勿修改）
-├── interfaces.go        # Repository接口定义
-├── user_repository.go   # 用户Repository
-├── xxx_repository.go    # 其他业务Repository
+├── interfaces.go        # Repository接口定义（按需创建）
+├── xxx_repository.go    # 业务Repository（按需创建）
 └── RULE.md             # 本规则文件
 ```
 

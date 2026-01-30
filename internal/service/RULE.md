@@ -8,9 +8,8 @@
 
 ```
 internal/service/
-├── interfaces.go       # Service接口定义
-├── user_service.go     # 用户Service
-├── xxx_service.go      # 其他业务Service
+├── interfaces.go       # Service接口定义（按需创建）
+├── xxx_service.go      # 业务Service（按需创建）
 └── RULE.md            # 本规则文件
 ```
 

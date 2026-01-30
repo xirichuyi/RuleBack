@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"ruleback/internal/config"
-	"ruleback/internal/model"
 	"ruleback/internal/router"
 	"ruleback/internal/wire"
 	"ruleback/pkg/database"
@@ -61,10 +60,21 @@ func initDatabase() error {
 }
 
 // migrateDatabase 执行数据库迁移
+// 使用框架时，在此处添加你的模型进行自动迁移
+// 示例:
+//
+//	models := []interface{}{
+//	    &model.User{},
+//	    &model.Product{},
+//	}
 func migrateDatabase() error {
 	models := []interface{}{
-		&model.User{},
-		// 添加新模型
+		// 在此添加你的模型
+	}
+
+	if len(models) == 0 {
+		logger.Info("没有模型需要迁移")
+		return nil
 	}
 
 	if err := database.AutoMigrate(models...); err != nil {
