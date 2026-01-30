@@ -75,7 +75,7 @@ database:
 
 ```bash
 # 开发模式运行
-go run cmd/server/main.go cmd/server/bootstrap.go
+go run cmd/server/
 
 # 编译并运行
 go build -o ruleback ./cmd/server/...
