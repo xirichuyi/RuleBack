@@ -1,0 +1,42 @@
+# RuleBack 应用配置文件示例
+# 复制此文件为 config.yaml 并根据实际情况修改
+# 配置项可通过环境变量覆盖，格式: APP_分组_字段 (大写下划线)
+# 例如: APP_SERVER_PORT=9090 覆盖 server.port
+
+# 应用基础配置
+app:
+  name: "ruleback"
+  env: "development"  # development, staging, production
+  debug: true
+
+# HTTP 服务器配置
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 30
+  write_timeout: 30
+
+# 数据库配置
+database:
+  driver: "mysql"  # mysql, postgres
+  host: "localhost"
+  port: 3306
+  database: "ruleback"
+  username: "root"
+  password: ""  # 生产环境使用 APP_DATABASE_PASSWORD
+  max_open_conns: 100
+  max_idle_conns: 10
+  conn_max_lifetime: 3600
+
+# 日志配置
+log:
+  level: "info"  # debug, info, warn, error
+  format: "json"  # json, console
+  output: "stdout"  # stdout, file
+  file_path: "logs/app.log"
+
+# JWT 配置
+jwt:
+  secret: "your-secret-key-change-in-production"  # 生产环境使用 APP_JWT_SECRET
+  expire_time: 24
+  issuer: "ruleback"

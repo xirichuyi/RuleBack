@@ -33,8 +33,8 @@ RuleBack 是一个面向 AI 代码生成优化的 Go 后端框架，采用清晰
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-repo/ruleback.git
-cd ruleback
+git clone https://github.com/xirichuyi/RuleBack.git
+cd RuleBack
 
 # 安装依赖
 go mod tidy
@@ -294,6 +294,83 @@ go mod tidy
 # 生成Wire代码
 ~/go/bin/wire ./internal/wire/...
 ```
+
+## 使用本框架
+
+RuleBack 设计为模板框架，供开发者快速启动新项目并配合 AI 进行代码生成。
+
+### 方式一：使用 GitHub 模板（推荐）
+
+1. 在 GitHub 仓库页面点击 **"Use this template"** 按钮
+2. 创建你自己的仓库
+3. 克隆并初始化：
+
+```bash
+git clone https://github.com/your-username/your-project.git
+cd your-project
+
+# 运行初始化脚本，自动替换模块名
+./scripts/init-project.sh your-project
+
+# 安装依赖
+go mod tidy
+
+# 配置数据库
+cp configs/config.yaml.example configs/config.yaml
+# 编辑 configs/config.yaml 配置数据库连接
+
+# 运行项目
+go run cmd/server/main.go cmd/server/bootstrap.go
+```
+
+### 方式二：手动克隆
+
+```bash
+# 克隆项目
+git clone https://github.com/xirichuyi/RuleBack.git my-project
+cd my-project
+
+# 删除原有git历史
+rm -rf .git
+git init
+
+# 运行初始化脚本
+./scripts/init-project.sh my-project
+
+# 后续步骤同上
+```
+
+### 配合 AI 生成代码
+
+本框架专为 AI 代码生成优化，每个模块都有 `RULE.md` 规则文件指导 AI 生成一致的代码。
+
+**使用方法：**
+
+1. 让 AI 先阅读 `CLAUDE.md` 主规则文件
+2. 描述你需要的功能，AI 会自动按规范生成代码
+
+**示例提示词：**
+
+```
+请先阅读项目的 CLAUDE.md 文件了解项目规范。
+然后帮我创建一个商品(Product)模块，包含以下字段：
+- name: 商品名称 (string, 必填, 最大100字符)
+- price: 价格 (decimal, 必填)
+- stock: 库存 (int, 默认0)
+- status: 状态 (启用/禁用)
+
+需要完整的 CRUD 接口。
+```
+
+AI 会按照框架规范自动生成：
+- `internal/model/product.go` - 数据模型
+- `internal/repository/product_repository.go` - 数据访问层
+- `internal/service/product_service.go` - 业务逻辑层
+- `internal/handler/product_handler.go` - HTTP处理层
+- 更新 Wire 依赖注入配置
+- 更新路由注册
+
+详细的 AI 使用指南请参考 [docs/AI_USAGE.md](docs/AI_USAGE.md)。
 
 ## 许可证
 
